@@ -1,0 +1,58 @@
+{
+  "name": "dumpdis",
+  "description": "Dump discord channels and servers",
+  "version": "0.0.0",
+  "author": "willyb321 @willyb321",
+  "bin": {
+    "dumpdis": "./bin/run"
+  },
+  "bugs": "https://github.com/willyb321/dumpdis/issues",
+  "dependencies": {
+    "@oclif/command": "^1.5.13",
+    "@oclif/config": "^1.12.12",
+    "@oclif/plugin-help": "^2.1.6",
+    "cli-ux": "^5.2.1",
+    "conf": "^4.0.2",
+    "discord.js": "github:discordjs/discord.js",
+    "tslib": "^1.9.3"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.22.0",
+    "@types/node": "^10.14.6",
+    "globby": "^8.0.2",
+    "rimraf": "^2.6.3",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/willyb321/dumpdis",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "oclif": {
+    "commands": "./lib/commands",
+    "bin": "dumpdis",
+    "plugins": [
+      "@oclif/plugin-help",
+      "conf-cli"
+    ]
+  },
+  "repository": "willyb321/dumpdis",
+  "scripts": {
+    "postpack": "rimraf oclif.manifest.json",
+    "prepack": "rimraf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "echo NO TESTS",
+    "version": "oclif-dev readme && git add README.md"
+  },
+  "types": "lib/index.d.ts"
+}
