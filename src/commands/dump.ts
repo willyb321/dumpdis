@@ -1,4 +1,4 @@
-import { conf } from './../config';
+import {conf} from '../config';
 import cli from 'cli-ux';
 import {Command, flags} from '@oclif/command'
 import * as Discord from 'discord.js';
@@ -68,12 +68,12 @@ export default class Init extends Command {
 
   async fetchMessages(client: any, channel: Discord.TextChannel, messages: any[]): Promise<any[]> {
     let oldMsgCount = messages.length;
-    if (!messages[messages.length-1]) {
-      let newMsgs: any = await channel.fetchMessages({before: channel.lastMessageID || channel.lastMessageID, limit: 100});
+    if (!messages[messages.length - 1]) {
+      let newMsgs: any = await channel.messages.fetch({before: channel.lastMessageID || '', limit: 100});
       newMsgs = newMsgs.array();
       messages = messages.concat(newMsgs);
     } else {
-      let newMsgs: any = await channel.fetchMessages({before: messages[messages.length-1].id || channel.lastMessageID, limit: 100});
+      let newMsgs: any = await channel.messages.fetch({before: channel.lastMessageID || '', limit: 100});
       newMsgs = newMsgs.array();
       messages = messages.concat(newMsgs);
     }

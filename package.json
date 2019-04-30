@@ -43,8 +43,7 @@
     "commands": "./lib/commands",
     "bin": "dumpdis",
     "plugins": [
-      "@oclif/plugin-help",
-      "conf-cli"
+      "@oclif/plugin-help"
     ]
   },
   "repository": "willyb321/dumpdis",
