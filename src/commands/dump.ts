@@ -5,7 +5,7 @@ import * as Discord from 'discord.js';
 import {resolve} from 'path';
 import {appendFileSync} from 'fs';
 
-export default class Init extends Command {
+export default class Dump extends Command {
   static description = 'Initialize config'
 
   static examples = [
@@ -15,14 +15,22 @@ export default class Init extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
     // flag with a value (-n, --name=VALUE)
-    id: flags.string({char: 'i', description: 'Discord channel / server ID?'}),
-    output: flags.string({char: 'o', description: 'Output path? (relative to current directory)'})
+    id: flags.string({char: 'i', required: true, description: 'Discord channel / server ID?'}),
   }
 
-  static args = []
+  static args = [
+    {
+      name: 'output',               // name of arg to show in help and reference with args[name]
+      required: false,            // make the arg required with `required: true`
+      description: 'Output path? (relative to current directory)', // help description
+      parse: (input: string) => input.toString().trim(),
+      default: `dumpdis_${new Date().toISOString()}.txt`,
+      char: 'o'
+    }
+  ]
 
   async run() {
-    const {args, flags} = this.parse(Init);
+    const {args, flags} = this.parse(Dump);
     if (!conf.get('token')) {
       console.log('Run `dumpcord init` first!');
       process.exit(0);
@@ -31,7 +39,7 @@ export default class Init extends Command {
     if (!channelId) {
       channelId = await cli.prompt('What discord channel or server ID to dump?');
     }
-    let outPath: any = flags.output;
+    let outPath: any = args.output;
     if (!outPath) {
       outPath = await cli.prompt('Output directory? (relative to current directory)');
     }
@@ -41,20 +49,34 @@ export default class Init extends Command {
 
     client.on('ready', () => {
       console.log('About to start dumping!');
-      this.dump(outPath, channelId, client);
+      cli.action.start('Dumping');
+      let toDump;
+      if (client.guilds.has(channelId || '')) {
+        const guild = client.guilds.get(channelId || '');
+        if (!guild) {
+          return;
+        }
+        const channel = guild.channels.array()[0].id;
+        toDump = client.channels.get(channel) as Discord.TextChannel;
+      } else if (client.channels.has(channelId || '')) {
+        toDump = client.channels.get(channelId || '') as Discord.TextChannel;
+      }
+      if (!toDump) {
+        cli.action.stop(`Couldn't find a server or channel with ID ${channelId}`);
+        return
+      }
+      console.log(`Dumping channel / server: ${toDump.name}`);
+      this.dump(outPath, toDump, client);
     });
 
     client.login(conf.get('token'));
   }
 
-  async dump(outPath: string, id: any, client: Discord.Client) {
-    const server: any = !!client.guilds.get(id) ? client.guilds.get(id) : client.channels.get(id);
-    if (!server) {
+  async dump(outPath: string, channel: Discord.TextChannel, client: Discord.Client) {
+    if (!channel) {
       console.log('Not a server or channel, exiting');
       process.exit(0);
     }
-    console.log(`Dumping ${server.name}`);
-    const channel = server as Discord.TextChannel;
     let messages = await this.fetchMessages(client, channel, []);
     messages = messages.reverse();
     console.log(`Done dumping messages (total: ${messages.length})`);
